@@ -25,8 +25,8 @@ st.title("Listing QC")
 # st.sidebar.success("Select Action")
 
 
-data = pd.read_csv('excel_check.csv')
-data.fillna('NULL',inplace = True)
+# data = pd.read_csv('excel_check.csv')
+# data.fillna('NULL',inplace = True)
 
 with open('amazon_categories.pickle', 'rb') as handle:
     amazon_categories = pickle.load(handle)
