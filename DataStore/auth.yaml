@@ -1,0 +1,14 @@
+credentials:
+  usernames:
+    PratikG:
+      email: pratik.g@goglocal.com
+      name: Pratik Ghongade
+      password: "$2b$12$kcs7x1QPx5bQ3nOBmTkj7ei6CGKY54oArbW6n7TYn3MbnJMEBdt2C" # To be replaced with hashed password
+    DataScience:
+      email: pratik.g@goglocal.com
+      name: DataScience Team
+      password: "$2b$12$Arf1zkDyDV0Dn2ZPvG4mrOTSBAqdjFvByZYwuwttqqhL0l4qBdR6G" # To be replaced with hashed password
+cookie:
+  expiry_days: 30
+  key: 123##
+  name: qclist
