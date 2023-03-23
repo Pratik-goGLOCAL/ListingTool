@@ -15,7 +15,7 @@ process = CrawlerProcess(settings={
         'AmazonSearchProductSpider.AmazonSearchProductSpider.middlewares.MyHttpErrorMiddleware': 540,
     },
     "FEEDS": {
-        "DataStore/Scrapy_Res.csv": {"format": "csv","overwrite":True},
+        "DataStore/Scrapy_Res.csv": {"format": "csv","overwrite":True}
     }
 })
 #,"overwrite":True
