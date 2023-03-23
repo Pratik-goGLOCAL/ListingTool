@@ -188,8 +188,7 @@ if not stop and submit:
     dt_string = now.strftime("%d_%m_%Y_%H_%M_%S")
     filename = 'Listing_QC_results_'+dt_string+'.csv'
     res_df.to_csv('DataStore/'+filename ,index = False)
-    if len(r_email)>0:
-        send_email(r_email,filename)
+    
 
     # if 'ScrapedData_pg_v1.csv' in os.listdir('DataStore/'):
     #     # st.write('TRUE')
@@ -209,3 +208,5 @@ if not stop and submit:
         file_name='DataStore/ListingQC_res.csv',
         mime='text/csv',
     )
+    if len(r_email)>0:
+        send_email(r_email,filename)
