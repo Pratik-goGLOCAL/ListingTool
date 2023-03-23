@@ -33,7 +33,7 @@ def send_email(r_email,filename):
         email_body, 
         # Email address of the sender
         # Leave this paramter out if using environment variable 'EMAIL_ADDRESS'
-        'nakul.c@goglocal.com' 
+        'nakulchamariya373@gmail.com' 
     )
 
     # If using HTML file
