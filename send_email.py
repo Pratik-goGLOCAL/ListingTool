@@ -15,6 +15,7 @@ def send_email(r_email,filename):
         names = pd.read_csv('DataStore/'+filename)['ASIN'].tolist()
     else:
         names = st.session_state['Brand_name']
+
     email_subject = 'Listing QC Results for '+ tag
     email_body = '''Hello,
 
@@ -32,7 +33,7 @@ def send_email(r_email,filename):
         email_body, 
         # Email address of the sender
         # Leave this paramter out if using environment variable 'EMAIL_ADDRESS'
-        'pratik.g@goglocal.com' 
+        'nakul.c@goglocal.com' 
     )
 
     # If using HTML file
@@ -46,6 +47,6 @@ def send_email(r_email,filename):
 
     # Send the email
     # Leave this parameter out if using environment variable 'EMAIL_PASSWORD'
-    new_mail.send('gtpjxmfpswyqzbqy')
+    new_mail.send('gnhcjjvsjznxvodv')
     os.remove('DataStore/'+filename)
     st.write('Results successfully sent to your email address!!!')
