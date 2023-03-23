@@ -33,7 +33,7 @@ def send_email(r_email,filename):
         email_body, 
         # Email address of the sender
         # Leave this paramter out if using environment variable 'EMAIL_ADDRESS'
-        'nakulchamariya373@gmail.com' 
+        'pratik.ghongade1216@gmail.com' 
     )
 
     # If using HTML file
@@ -47,6 +47,6 @@ def send_email(r_email,filename):
 
     # Send the email
     # Leave this parameter out if using environment variable 'EMAIL_PASSWORD'
-    new_mail.send('gnhcjjvsjznxvodv')
+    new_mail.send('jhowiyjbxoxkbhiy')
     os.remove('DataStore/'+filename)
     st.write('Results successfully sent to your email address!!!')
