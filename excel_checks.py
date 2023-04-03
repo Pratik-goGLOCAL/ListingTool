@@ -19,6 +19,10 @@ from stqdm import stqdm
 from time import sleep
 from gingerit.gingerit import GingerIt
 import VIcount
+from PIL import Image
+import requests
+import cv2
+
 # import Caribe as cb
 
 # Load Data
@@ -392,8 +396,91 @@ def get_aplus_check_flag(data):
 
 ##############################################################################################################
 ## Ratings count individually
+def get_fourplus_fraction(fract_str):
+    fract_list = fract_str.split(',')
+    logger.info('Ratings Split {}'.format(fract_list))
+    total_frac = 0
+    for rating in fract_list:
+        logger.info('{} contains 5 star or 4 star {}'.format(rating,'5 star' in rating or '4 star' in rating))
+        if '5 star' in rating or '4 star' in rating:
+            logger.info('ratings {}'.format(rating))
+            logger.info('{}'.format(rating.split('%')[0]))
+            total_frac+=int(rating.split('%')[0])
+            logger.info('Total Fraction {}'.format(total_frac))
+    return total_frac/100
+
 def get_ratings_count(data):
-    data['ratings_count','ratings_breakdown']
+    logger.info('Data Size = {}'.format(data.shape))
+    data['fraction_4plus_ratings'] = data['ratings_breakdown'].apply(lambda x: get_fourplus_fraction(x))
+
+##############################################################################################################
+## Object Detection 
+def object_detect_res(links):
+    links = links.split(',')
+    output_res_file = []
+    lifestyle_flag = []
+    for image_path in links:
+        logger.info('Object Detection API Call for {}'.format(image_path))
+        # im = Image.open(requests.get(image_path,stream=True).raw).convert("RGB")
+        # im = np.array(im)
+        # image_path = '../Detectron_2.0/DataStore/Inputs/test_img.png'
+        # cv2.imwrite(image_path,im)
+        # response = requests.get(f"{'http://52.204.224.231:8024/Yolo9000-predictions?image_path=DataStore%2FInputs%2Ftest_img.png'}")
+        response = requests.get(f"{'http://52.204.224.231:8022/detectron2-predictions?image_path={}'.format(image_path)}")
+        logger.info('Got Response!! for {}'.format(image_path))
+        res = response.json()
+        logger.info('obtained_res {}'.format(res))
+        output_res_file.append(res)
+        logger.info('Number of classes detected {}'.format(res['output_classes']))
+        if len(set(res['output_classes']))>1:
+            lifestyle_flag.append(1)
+        else:
+            lifestyle_flag.append(0)
+    return output_res_file,lifestyle_flag
+def get_lifestyle_flag(data):
+    data[['object_detect','pred_lifestyle_flags']] = pd.DataFrame(data['image_links'].progress_apply(lambda x: object_detect_res(x)).tolist())
+        
+
+##############################################################################################################
+## Object Text Detection and Infographics Flag
+
+def check_text_position(image, object_boxes,ocr_boxes):
+    # object_boxes = object_detection_res[x][1]
+    # ocr_boxes = ocr_res[x][0].splitlines()
+    # im = Image.open(requests.get(image_path,stream=True).raw).convert("RGB")
+    # image = np.array(im)
+    h, w, _ = np.array(image).shape
+    for obj in object_boxes:
+        logger.info('obj is {}'.format(obj))
+        ox1,ox2,ox3,ox4 = int(obj[0]), int(obj[1]), int(obj[2]), int(obj[3])
+        for txbox in ocr_boxes:
+            logger.info('Text Box {}'.format(txbox))
+            b = txbox#.split(' ')
+            tx1,tx2,tx3,tx4 = int(b[0]), int(b[1]), int(b[4]),int(b[5])
+            if tx3<ox3 and tx4<ox4:
+                return 1
+    return 0
+
+def get_ocr_detection(links,boxes):
+    links = links.split(',')
+    output_res_file = []
+    infographics_flag = []
+    image_links = []
+    for image_path,box in zip(links,boxes):
+        logger.info('OCR API Call for {}'.format(image_path))
+        im = Image.open(requests.get(image_path,stream=True).raw).convert("RGB")
+        im = np.array(im)
+        # image_path = '../MMOCR/DataStore/Inputs/test_img.png'
+        # cv2.imwrite(image_path,im)
+        response = requests.get(f"{'http://52.204.224.231:8021/mmocr-predictions?image_path={}'.format(image_path)}")
+        res = response.json()
+        logger.info('Results of API call are {}'.format(res))
+        output_res_file.append(res)
+        infographics_flag.append(check_text_position(im,box['bbox'],res['bbox']))
+    return output_res_file,infographics_flag
+
+def get_infographics_flag(data):
+    data[['OCR_detect','pred_infographics_flags']] = pd.DataFrame(data[['image_links','object_detect']].progress_apply(lambda x: get_ocr_detection(x.image_links,x.object_detect), axis= 1).tolist())
 
 ##############################################################################################################
 ## Get all the flags
@@ -469,6 +556,29 @@ def QC_check1(data):
     data['Grade2'] = data[['final_entire_spellcheck','final_dimensionality_check','final_sentence_case_check','final_aplus_check_flag']].sum(axis = 1)
     data['Grade2'] = data['Grade2'].apply(lambda x: 'A' if x==4 else('B' if x==3 else 'C'))
     messages['Grade2'] = ['Grade 2 Score']
+
+    text9 = st.empty()
+    logger.info('Fraction of 4+ ratings started')
+    logger.info('Get Fraction of 4+ ratings')
+    get_ratings_count(data)
+    messages['fraction_4plus_ratings'] = ['The faction 4+ ratings out of the total ratings']
+    logger.info('Fraction of 4+ ratings check Completed!!!')
+
+    text10 = st.empty()
+    logger.info('Lifestyle Image check started')
+    logger.info('Object Detection and Lifestyle Image Flag')
+    get_lifestyle_flag(data)
+    messages['object_detect'] = ['Detected Objects Results']
+    messages['pred_lifestyle_flags'] = ['Predicted Lifestyle Flag for the Image']
+    logger.info('Lifestyle Image check Completed!!!')
+
+    text10 = st.empty()
+    logger.info('Infographics Image check started')
+    logger.info('OCR Detection and Infographcics Image Flag')
+    get_infographics_flag(data)
+    messages['OCR_detect'] = ['OCR Detected Text results']
+    messages['pred_infographics_flags'] = ['Predicted Infographics Flag']
+    logger.info('Infographics Image check Completed!!!')
 
     tooltips_df = pd.DataFrame(messages)
     data.style.set_tooltips(tooltips_df)
