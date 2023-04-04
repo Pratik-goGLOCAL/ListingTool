@@ -572,7 +572,7 @@ def QC_check1(data):
     messages['pred_lifestyle_flags'] = ['Predicted Lifestyle Flag for the Image']
     logger.info('Lifestyle Image check Completed!!!')
 
-    text10 = st.empty()
+    text11 = st.empty()
     logger.info('Infographics Image check started')
     logger.info('OCR Detection and Infographcics Image Flag')
     get_infographics_flag(data)
