@@ -558,14 +558,14 @@ def QC_check1(data):
     messages['Grade2'] = ['Grade 2 Score']
 
     text9 = st.empty()
-    logger.info('Fraction of 4+ ratings started')
+    text9.write('Fraction of 4+ ratings started')
     logger.info('Get Fraction of 4+ ratings')
     get_ratings_count(data)
     messages['fraction_4plus_ratings'] = ['The faction 4+ ratings out of the total ratings']
     logger.info('Fraction of 4+ ratings check Completed!!!')
 
     text10 = st.empty()
-    logger.info('Lifestyle Image check started')
+    text10.write('Lifestyle Image check started')
     logger.info('Object Detection and Lifestyle Image Flag')
     get_lifestyle_flag(data)
     messages['object_detect'] = ['Detected Objects Results']
@@ -573,7 +573,7 @@ def QC_check1(data):
     logger.info('Lifestyle Image check Completed!!!')
 
     text11 = st.empty()
-    logger.info('Infographics Image check started')
+    text11.write('Infographics Image check started')
     logger.info('OCR Detection and Infographcics Image Flag')
     get_infographics_flag(data)
     messages['OCR_detect'] = ['OCR Detected Text results']
