@@ -7,6 +7,7 @@ import pickle
 import subprocess
 import json
 import scrapy
+import requests
 from scrapy.crawler import CrawlerProcess,CrawlerRunner
 from urllib.parse import urljoin
 import re
@@ -90,6 +91,8 @@ if st.session_state['asin_brand']=='ASIN':
     # logger.info([x.strip() for x in search_text.split(',')])
     
     st.session_state["ASIN"] = search_text #[x.strip() for x in search_text.split(',')]
+    with open('DataStore/All_Asins.pickle','wb') as handle:
+            pickle.dump(search_text.split(','), handle, protocol=pickle.HIGHEST_PROTOCOL)
 elif st.session_state['asin_brand']=='URL':
     url_place = st.empty()
     search_text = url_place.text_input("Search for an URL", st.session_state["URL"])
@@ -116,7 +119,7 @@ with open('DataStore/_category.pickle', 'wb') as handle:
 def convert_df(df):
     # IMPORTANT: Cache the conversion to prevent computation on every rerun
     return df.to_csv().encode('utf-8')
-
+# def do_scrapping()
 if not stop and submit:
     submitplace.button("Submit",disabled=True,key='submit2')
     email_place.text_input('Enter e-mail address to get results via mail', st.session_state["r_email"],disabled=True,key = 'emailplace')
@@ -139,21 +142,29 @@ if not stop and submit:
     st.caption('To stop the process press the Stop button and refresh the page')
     textplace = st.empty()
     textplace.subheader("Scraping Started for {} ".format(search_text))
-    import subprocess
-    variable = 'Run_Spider.py'
-    subprocess.call(f"{sys.executable} " + variable, shell=True)
-    try:
-        df = pd.read_csv('DataStore/Scrapy_Res.csv')
-        df.fillna('NA',inplace = True)  
-        # df['product_brand'] = df['product_brand'].apply(lambda x:st.session_state['Brand_name'].title() if x=='NA' else x).copy()
-    except:
-        df = pd.read_csv('DataStore/ScrapedData_pg_v1.csv')
-        df.fillna('NA',inplace = True)
-    # listing_cols = ['ASIN', 'MRP', 'aplus_images', 'aplus_text', 'brand', 'bullets', 'description', 'image_links',
-    #                 'price', 'ratings', 'ratings_count', 'title', 'url', 'video_links']
-    df = df#[listing_cols]
-
-    # st.dataframe(df['product_brand'])
+    ##################################################################################################################################
+    # import subprocess
+    # variable = 'Run_Spider.py'
+    # subprocess.call(f"{sys.executable} " + variable, shell=True)
+    # try:
+    #     df = pd.read_csv('DataStore/Scrapy_Res.csv')
+    #     df.fillna('NA',inplace = True)  
+    #     # df['product_brand'] = df['product_brand'].apply(lambda x:st.session_state['Brand_name'].title() if x=='NA' else x).copy()
+    # except:
+    #     df = pd.read_csv('DataStore/ScrapedData_pg_v1.csv')
+    #     df.fillna('NA',inplace = True)
+    # # listing_cols = ['ASIN', 'MRP', 'aplus_images', 'aplus_text', 'brand', 'bullets', 'description', 'image_links',
+    # #                 'price', 'ratings', 'ratings_count', 'title', 'url', 'video_links']
+    # df = df#[listing_cols]
+    ##################################################################################################################################
+    logger.info('asin_brand:{}, search_text:{}, category:{}'.format(st.session_state['asin_brand'],search_text,st.session_state['category']))
+    response = requests.get(f"{'http://52.204.224.231:8026/Scrapping?brand_asin={}&search_text={}&category={}'.format(st.session_state['asin_brand'],search_text,st.session_state['category'])}")
+    logger.info('We got the Response form API')
+    dict = json.loads(response.json())
+    logger.info('Reponse JSON dict {}'.format(dict))
+    df = pd.DataFrame.from_dict(dict)
+    logger.info('DataFrame Head is {}'.format(df.head()))
+    ##################################################################################################################################
     textplace.subheader('Scraping Complete!!!')
     # st.write(df)
     minpdata = 2
@@ -163,6 +174,7 @@ if not stop and submit:
     st.subheader('QC_Checks Started')
     df.fillna('NA',inplace = True)
     res_df = excel_checks.QC_check1(df)
+    # res_df = df.copy()
     # res_df = res_df.drop(['product_weight','product_material','product_category','item_height','item_length','item_width'], axis = 1)
     st.subheader('QC Checks Completed!!!')
     submitplace.button("Submit",disabled=False,key='submit3')

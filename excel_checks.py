@@ -231,7 +231,17 @@ def get_BulletPoints_flag(data):
     ## Bullet Points start with capital letter check
     b3 = st.empty()
     b3.caption('Bullet Points start with capital letter Check: ')
-    data['bullets_first_capital_check'] = data['bullets'].apply(lambda x: int(''.join([s.strip().lstrip(', ')[0] for s in x.strip().split('\n')]).isupper()) )
+    def firstletter(x):
+        try: 
+            x = x.strip().split('\n')
+            l = []
+            for s in x:
+                s = s.strip().lstrip(', ')[0]
+                l.append(s)
+            return int(''.join(l).isupper())
+        except:
+            return 0
+    data['bullets_first_capital_check'] = data['bullets'].apply(lambda x: firstletter(x) )
     messages['bullets_first_capital_check'] = ['Check if the bullet points start with a capital letter']
 
     ## Spell Check
@@ -564,21 +574,21 @@ def QC_check1(data):
     messages['fraction_4plus_ratings'] = ['The faction 4+ ratings out of the total ratings']
     logger.info('Fraction of 4+ ratings check Completed!!!')
 
-    text10 = st.empty()
-    text10.write('Lifestyle Image check started')
-    logger.info('Object Detection and Lifestyle Image Flag')
-    get_lifestyle_flag(data)
-    messages['object_detect'] = ['Detected Objects Results']
-    messages['pred_lifestyle_flags'] = ['Predicted Lifestyle Flag for the Image']
-    logger.info('Lifestyle Image check Completed!!!')
+    # text10 = st.empty()
+    # text10.write('Lifestyle Image check started')
+    # logger.info('Object Detection and Lifestyle Image Flag')
+    # get_lifestyle_flag(data)
+    # messages['object_detect'] = ['Detected Objects Results']
+    # messages['pred_lifestyle_flags'] = ['Predicted Lifestyle Flag for the Image']
+    # logger.info('Lifestyle Image check Completed!!!')
 
-    text11 = st.empty()
-    text11.write('Infographics Image check started')
-    logger.info('OCR Detection and Infographcics Image Flag')
-    get_infographics_flag(data)
-    messages['OCR_detect'] = ['OCR Detected Text results']
-    messages['pred_infographics_flags'] = ['Predicted Infographics Flag']
-    logger.info('Infographics Image check Completed!!!')
+    # text11 = st.empty()
+    # text11.write('Infographics Image check started')
+    # logger.info('OCR Detection and Infographcics Image Flag')
+    # get_infographics_flag(data)
+    # messages['OCR_detect'] = ['OCR Detected Text results']
+    # messages['pred_infographics_flags'] = ['Predicted Infographics Flag']
+    # logger.info('Infographics Image check Completed!!!')
 
     tooltips_df = pd.DataFrame(messages)
     data.style.set_tooltips(tooltips_df)
