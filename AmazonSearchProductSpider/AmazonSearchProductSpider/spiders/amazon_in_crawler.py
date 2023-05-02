@@ -25,6 +25,8 @@ def get_useragent():
 
 class AmazonSearchProductSpider(scrapy.Spider):
     name = "amazon_search_product"
+    def __init__(self):
+        self.asin_list = []
     def start_requests(self):       
         with open('DataStore/keyword_list.pickle', 'rb') as handle:
             keyword_list = pickle.load(handle)
@@ -64,14 +66,17 @@ class AmazonSearchProductSpider(scrapy.Spider):
         keyword = response.meta['keyword'] 
 
         all_asins =[i for i in response.xpath('//*[@data-asin]').xpath('@data-asin').extract() if i!='']
-
+        self.asin_list+=all_asins
+        import pickle
+        with open('DataStore/All_Asins.pickle','wb') as handle:
+            pickle.dump(self.asin_list, handle, protocol=pickle.HIGHEST_PROTOCOL)
         for asin in all_asins:
              product_url = f'https://www.amazon.in/dp/{asin}'#.split("?")[0]
              print("product_url : ",product_url)
              yield scrapy.Request(url=product_url, callback=self.parse, meta={'keyword': keyword, 'page': page})
         ## Get All Pages
         if page == 1:
-            total_pages =int(response.css(".s-pagination-item.s-pagination-disabled::text").getall()[-1])
+            total_pages =int(response.css(".s-pagination-item.s-pagination-disabled::text").getall()[:])
             available_pages = [pg for pg in range(2,total_pages+1)]
             print(available_pages)
             #available_pages = response.xpath(
@@ -173,7 +178,8 @@ class AmazonSearchProductSpider(scrapy.Spider):
                 return None ,None 
 
         items["title"]= response.css("#productTitle::text").get("").strip()
-        if len(items['title'])>1:
+
+        if len(items['title'])>1 :
 
             # BASIC
             items["url"]= response.request.url

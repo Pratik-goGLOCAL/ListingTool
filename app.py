@@ -158,7 +158,7 @@ if not stop and submit:
     # df = df#[listing_cols]
     ##################################################################################################################################
     logger.info('asin_brand:{}, search_text:{}, category:{}'.format(st.session_state['asin_brand'],search_text,st.session_state['category']))
-    response = requests.get(f"{'http://52.204.224.231:8026/Scrapping?brand_asin={}&search_text={}&category={}'.format(st.session_state['asin_brand'],search_text,st.session_state['category'])}")
+    response = requests.get(f"{'http://52.204.224.231:8027/Scrapping?brand_asin={}&search_text={}&category={}'.format(st.session_state['asin_brand'],search_text,st.session_state['category'])}")
     logger.info('We got the Response form API')
     dict = json.loads(response.json())
     logger.info('Reponse JSON dict {}'.format(dict))
