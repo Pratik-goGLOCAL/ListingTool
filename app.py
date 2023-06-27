@@ -48,7 +48,8 @@ if "category" not in st.session_state:
 # Enter email to send the results on 
 email_place = st.empty()
 r_email = email_place.text_input('Enter e-mail address to get results via mail', st.session_state["r_email"])
-
+st.session_state["r_email"]= r_email
+logger.info('r_email is {}'.format(r_email))
 # Select the region ,'USA','Europe','Asia'
 region_place = st.empty()
 region = region_place.multiselect(label='Select Region',
@@ -124,7 +125,8 @@ if not stop and submit:
     query = {'brand':st.session_state['Brand_name'],
              'asin_list': st.session_state['ASIN'],
              'category':st.session_state['category'],
-             'r_email':r_email}
+             'r_email': st.session_state["r_email"]}
+    logger.info('json query is {}'.format(query) )
     qc_response = requests.post(f"http://52.204.224.231:8031/ListingQC",json=query)
     if r_email!="NA":
         st.caption('The results are successfully sent on you email address !!')
