@@ -34,7 +34,7 @@ with open('amazon_categories.pickle', 'rb') as handle:
 
 # Initialize Variables
 if "r_email" not in st.session_state:
-    st.session_state["r_email"] = ""
+    st.session_state["r_email"] = "NA"
 if "Brand_name" not in st.session_state:
     st.session_state["Brand_name"] = ""
 if "Region" not in st.session_state:
