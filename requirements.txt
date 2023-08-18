@@ -1,7 +1,6 @@
 beautifulsoup4==4.12.0
 fake_headers==1.0.2
 fuzzywuzzy==0.18.0
-gingerit==0.9.0
 itemadapter==0.7.0
 loguru==0.6.0
 numpy==1.24.1
